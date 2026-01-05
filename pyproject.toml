@@ -1,0 +1,43 @@
+[tool.poetry]
+name = "ticketing-starter"
+version = "0.1.0"
+description = "Starter project for R4.01 Ticketing - Hexagonal architecture"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_functions = "test_*"
+asyncio_mode = "auto"
+pythonpath = ["."]
+
+[tool.black]
+line-length = 88
+target-version = ["py310"]
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+# E: pycodestyle errors (PEP 8 style)
+# F: pyflakes (unused imports, undefined names)
+# I: isort (import sorting)
+# N: pep8-naming (PEP 8 naming conventions)
+# UP: pyupgrade (modern Python idioms)
+# B: bugbear (common bugs)
+select = ["E", "F", "I", "N", "UP", "B"]
+ignore = [
+    "B008",  # Allow function calls in default arguments
+]
+
+[tool.ruff.lint.pep8-naming]
+# Enforce PEP 8 naming conventions
+# N801: class name should use CapWords convention
+# N802: function name should be lowercase
+# N803: argument name should be lowercase
+# N804: first argument of classmethod should be 'cls'
+# N805: first argument of method should be 'self'
+# N806: variable in function should be lowercase
+# N815: mixedCase variable in class scope
+# N816: mixedCase variable in global scope
+classmethod-decorators = ["classmethod"]
+staticmethod-decorators = ["staticmethod"]
