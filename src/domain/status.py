@@ -10,7 +10,7 @@ from enum import Enum
 
 class Status(Enum):
     """
-    États possibles d'un ticket.
+    private
 
     TODO: Définir les valeurs de l'énumération.
     Exemples de statuts courants : ouvert, en cours, résolu, fermé...
