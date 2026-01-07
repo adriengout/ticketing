@@ -7,6 +7,9 @@ C'est l'entité centrale du domaine métier.
 
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from typing import Optional
+
+from domain.status import Status
 
 
 def _now_utc() -> datetime:
@@ -39,17 +42,37 @@ class Ticket:
     id: str
     title: str
     description: str
-    # TODO: Ajouter les attributs manquants
-    # - status (avec valeur par défaut Status.OPEN)
-    # - creator_id
-    # - assignee_id (optionnel)
-    # - created_at, updated_at (dates)
+    creator_id: str
 
-    # TODO: Ajouter les méthodes métier
-    # def assign(self, user_id: str):
-    #     """Assigne le ticket à un agent."""
-    #     pass
+    status: Status = Status.OPEN
+    assignee_id: Optional[str] = None
+
+    def __post_init__(self):
+        if not self.title or not self.title.strip():
+            raise ValueError("Le titre du ticket ne peut pas être vide")
+
+        if not self.creator_id:
+            raise ValueError("Un ticket doit avoir un créateur")
+
+    def verif_status(self, asked_status: Status) -> bool:
+        transitions_autorisee = {
+            Status.OPEN: {Status.IN_PROGRESS},
+            Status.IN_PROGRESS: {Status.RESOLVED},
+            Status.RESOLVED: {Status.CLOSED, Status.IN_PROGRESS},
+            Status.CLOSED: set(),
+        }
+        return asked_status in transitions_autorisee[self.status]
+
+    def assign(self, user_id: str):
+        """Assigne le ticket à un agent."""
+        if not user_id:
+            raise ValueError("L'identifiant de l'agent ne peut pas être vide")
+        if not self.verifStatus(Status.IN_PROGRESS):
+            raise ValueError("impossible de faire cette transition de statut")
+        self.assignee_id = user_id
+        self.status = Status.IN_PROGRESS
+
     #
-    # def close(self):
-    #     """Ferme le ticket."""
-    #     pass
+    def close(self):
+        """Ferme le ticket."""
+        pass
