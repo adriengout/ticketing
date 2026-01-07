@@ -22,6 +22,10 @@ class User:
     """
 
     id: str
-    # TODO: Compléter avec les attributs manquants
-    # - username ?
-    # - is_agent ? is_admin ?
+    username: str
+    is_agent: bool
+    is_admin: bool = False
+
+    def __post_init__(self):
+        if not self.username:
+            raise ValueError("Username cannot be empty")
