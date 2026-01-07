@@ -45,7 +45,11 @@ class Ticket:
     creator_id: str
 
     status: Status = Status.OPEN
+    created_at: datetime = _now_utc()
+    updated_at: datetime = _now_utc()
+
     assignee_id: Optional[str] = None
+    closed_at: Optional[datetime] = None
 
     def __post_init__(self):
         if not self.title or not self.title.strip():
@@ -67,7 +71,7 @@ class Ticket:
         """Assigne le ticket à un agent."""
         if not user_id:
             raise ValueError("L'identifiant de l'agent ne peut pas être vide")
-        if not self.verifStatus(Status.IN_PROGRESS):
+        if not self.verif_status(Status.IN_PROGRESS):
             raise ValueError("impossible de faire cette transition de statut")
         self.assignee_id = user_id
         self.status = Status.IN_PROGRESS
@@ -75,4 +79,6 @@ class Ticket:
     #
     def close(self):
         """Ferme le ticket."""
-        pass
+        if not self.verif_status(Status.CLOSED):
+            raise ValueError("impossible de fermer le ticket")
+        self.status = Status.CLOSED
