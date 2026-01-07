@@ -10,7 +10,6 @@ from enum import Enum
 
 class Status(Enum):
     """
-    private
 
     TODO: Définir les valeurs de l'énumération.
     Exemples de statuts courants : ouvert, en cours, résolu, fermé...
@@ -21,4 +20,7 @@ class Status(Enum):
 
     # TODO: Ajouter les statuts ici
     # Exemple : OPEN = "open"
-    pass
+    OPEN = "open"
+    IN_PROGRESS = "in_progress"
+    RESOLVED = "resolved"
+    CLOSED = "closed"
