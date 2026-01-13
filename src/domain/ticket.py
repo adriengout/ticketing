@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Optional
 
-from domain.status import Status
+from src.domain.status import Status
 
 
 def _now_utc() -> datetime:
@@ -76,7 +76,12 @@ class Ticket:
         self.assignee_id = user_id
         self.status = Status.IN_PROGRESS
 
-    #
+    def resolve(self):
+        """resout le ticket"""
+        if not self.verif_status(Status.RESOLVED):
+            raise ValueError("Impossible de résoudre ce ticket")
+        self.status = Status.RESOLVED
+
     def close(self):
         """Ferme le ticket."""
         if not self.verif_status(Status.CLOSED):
