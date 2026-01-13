@@ -12,6 +12,8 @@ from datetime import datetime
 
 import pytest
 
+from src.domain.comment import Comment
+from src.domain.priority import Priority
 from src.domain.status import Status
 from src.domain.ticket import Ticket
 from src.domain.user import User
@@ -117,7 +119,9 @@ def test_cannot_assign_closed_ticket():
     ticket.resolve()
     ticket.close()
 
-    with pytest.raises(ValueError, match="impossible"):
+    with pytest.raises(
+        ValueError, match="Impossible de faire cette transition de statut"
+    ):
         ticket.assign("agent2")
 
 
@@ -129,7 +133,7 @@ def test_cannot_close_already_closed_ticket():
     ticket.resolve()
     ticket.close()
 
-    with pytest.raises(ValueError, match="impossible"):
+    with pytest.raises(ValueError, match="Impossible de fermer le ticket"):
         ticket.close()
 
 
@@ -140,5 +144,46 @@ def test_workflow_transitions():
     with pytest.raises(ValueError, match="Impossible de résoudre ce ticket"):
         ticket.resolve()
 
-    with pytest.raises(ValueError, match="impossible de fermer le ticket"):
+    with pytest.raises(ValueError, match="Impossible de fermer le ticket"):
         ticket.close()
+
+
+# ==========================================================================
+# 3. TESTS DES ENRICHISSEMENTS
+# ==========================================================================
+
+
+def test_default_priority_is_medium():
+    ticket = Ticket(id="t1", title="Bug", description="desc", creator_id="u1")
+    assert ticket.priority == Priority.MEDIUM
+
+
+def test_change_priority():
+    ticket = Ticket(id="t1", title="Bug", description="desc", creator_id="u1")
+    ticket.set_priority(Priority.HIGH)
+    assert ticket.priority == Priority.HIGH
+
+
+def test_add_comment():
+    ticket = Ticket(id="t1", title="Bug", description="desc", creator_id="u1")
+    comment = Comment(id="c1", author_id="u1", content="J'ai besoin d'aide")
+
+    ticket.add_comment(comment)
+
+    assert len(ticket.comments) == 1
+    assert ticket.comments[0].content == "J'ai besoin d'aide"
+
+
+def test_cannot_comment_on_closed_ticket():
+    """Règle métier : Pas de commentaire sur un ticket fermé."""
+    ticket = Ticket(id="t1", title="Bug", description="desc", creator_id="u1")
+
+    # On ferme le ticket (via le cycle complet pour être propre)
+    ticket.assign("agent1")
+    ticket.resolve()
+    ticket.close()
+
+    comment = Comment(id="c2", author_id="u1", content="Trop tard ?")
+
+    with pytest.raises(ValueError, match="Impossible de commenter"):
+        ticket.add_comment(comment)
