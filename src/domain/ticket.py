@@ -86,4 +86,5 @@ class Ticket:
         """Ferme le ticket."""
         if not self.verif_status(Status.CLOSED):
             raise ValueError("impossible de fermer le ticket")
+        self.closed_at = _now_utc
         self.status = Status.CLOSED

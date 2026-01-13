@@ -17,7 +17,7 @@ from src.domain.ticket import Ticket
 from src.domain.user import User
 
 # ==========================================================================
-# EXEMPLES DE TESTS À ÉCRIRE (décommentez et adaptez)
+# 1. TESTS NOMINAUX (Le scénario idéal)
 # ==========================================================================
 
 
@@ -59,36 +59,37 @@ def test_ticket_assign():
     assert ticket.status == Status.IN_PROGRESS
 
 
+def test_ticket_resolve():
+    """Vérifie la résolution d'un ticket (Nouveau test)."""
+    ticket = Ticket(id="t1", title="Test", description="desc", creator_id="u1")
+
+    ticket.assign("agent1")
+    ticket.resolve()
+
+    assert ticket.status == Status.RESOLVED
+
+
 def test_ticket_close():
-    """Vérifie la fermeture d'un ticket."""
+    """Vérifie la fermeture d'un ticket en suivant le cycle complet."""
     ticket = Ticket(id="t1", title="Test", description="desc", creator_id="u1")
 
-    ticket.status = Status.RESOLVED
+    ticket.assign("agent1")
+    ticket.resolve()
     ticket.close()
+
     assert ticket.status == Status.CLOSED
+    assert ticket.closed_at is not None
 
 
 # ==========================================================================
-# TESTS DES RÈGLES MÉTIER (invariants) - à vous de les écrire !
+# 2. TESTS DES RÈGLES MÉTIER (Invariants & Erreurs)
 # ==========================================================================
 
 
-def test_cannot_assign_closed_ticket():
-    """Règle : Un ticket fermé ne peut plus être assigné."""
-    ticket = Ticket(id="t1", title="Test", description="desc", creator_id="u1")
-    ticket.status = Status.CLOSED
-    with pytest.raises(ValueError, match="impossible"):
-        ticket.assign("agent2")
-
-
-def test_cannot_close_already_closed_ticket():
-    """Règle : Un ticket déjà fermé ne peut pas être re-fermé."""
-    ticket = Ticket(id="t1", title="Test", description="desc", creator_id="u1")
-
-    ticket.status = Status.CLOSED
-
-    with pytest.raises(ValueError, match="impossible"):
-        ticket.close()
+def test_ticket_must_have_creator():
+    """Règle : Un ticket doit avoir un créateur."""
+    with pytest.raises(ValueError, match="créateur"):
+        Ticket(id="t1", title="Titre", description="desc", creator_id="")
 
 
 def test_ticket_title_cannot_be_empty():
@@ -98,3 +99,46 @@ def test_ticket_title_cannot_be_empty():
 
     with pytest.raises(ValueError):
         Ticket(id="t2", title="   ", description="desc", creator_id="u1")
+
+
+def test_cannot_assign_without_agent_id():
+    """Règle : L'identifiant de l'agent est obligatoire pour assigner."""
+    ticket = Ticket(id="t1", title="Test", description="desc", creator_id="u1")
+
+    with pytest.raises(ValueError, match="vide"):
+        ticket.assign("")
+
+
+def test_cannot_assign_closed_ticket():
+    """Règle : Un ticket fermé ne peut plus être assigné."""
+    ticket = Ticket(id="t1", title="Test", description="desc", creator_id="u1")
+
+    ticket.assign("agent1")
+    ticket.resolve()
+    ticket.close()
+
+    with pytest.raises(ValueError, match="impossible"):
+        ticket.assign("agent2")
+
+
+def test_cannot_close_already_closed_ticket():
+    """Règle : Un ticket déjà fermé ne peut pas être re-fermé."""
+    ticket = Ticket(id="t1", title="Test", description="desc", creator_id="u1")
+
+    ticket.assign("agent1")
+    ticket.resolve()
+    ticket.close()
+
+    with pytest.raises(ValueError, match="impossible"):
+        ticket.close()
+
+
+def test_workflow_transitions():
+    """Règle : On ne peut pas sauter les étapes (ex: OPEN -> RESOLVED direct)."""
+    ticket = Ticket(id="t1", title="Test", description="desc", creator_id="u1")
+
+    with pytest.raises(ValueError, match="Impossible de résoudre ce ticket"):
+        ticket.resolve()
+
+    with pytest.raises(ValueError, match="impossible de fermer le ticket"):
+        ticket.close()
