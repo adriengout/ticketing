@@ -45,14 +45,13 @@ class CreateTicketUseCase:
         """
         # Créer le ticket avec les entités du domaine
         ticket = Ticket(
-            id=str(uuid.uuid4()),  # Génère un UUID
+            id=str(uuid.uuid4()),
             title=title,
             description=description,
             creator_id=creator_id,
             priority=Priority.MEDIUM,
         )
 
-        # Persister via le port (peu importe l'implémentation !)
         saved_ticket = self.ticket_repo.save(ticket)
 
         return saved_ticket

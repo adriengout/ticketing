@@ -36,7 +36,7 @@ class TestAssignTicketUseCase:
 
     def test_assign_nonexistent_ticket_raises_error(self):
         """Doit lever une erreur si le ticket n'existe pas."""
-        # Arrange
+
         fake_id = "ticket-inexistant"
         agent_id = "agent-789"
 
