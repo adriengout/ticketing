@@ -52,7 +52,6 @@ class Ticket:
             raise ValueError("Impossible de faire cette transition de statut")
 
         self.assignee_id = user_id
-        self.status = Status.IN_PROGRESS
         self.updated_at = _now_utc()
 
     def resolve(self):

@@ -21,3 +21,15 @@ class TicketNotFoundError(Exception):
     """Levée quand un ticket demandé n'existe pas."""
 
     pass
+
+
+class TicketNotAssignedError(DomainError):
+    pass
+
+
+class WrongAgentError(DomainError):
+    pass
+
+
+class InvalidTicketStateError(DomainError):
+    pass
