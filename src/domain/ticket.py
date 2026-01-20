@@ -3,6 +3,11 @@ from datetime import datetime, timezone
 from typing import Optional
 
 from src.domain.comment import Comment
+from src.domain.exceptions import (
+    InvalidTicketStateError,
+    TicketNotAssignedError,
+    WrongAgentError,
+)
 from src.domain.priority import Priority
 from src.domain.status import Status
 
@@ -53,6 +58,24 @@ class Ticket:
 
         self.assignee_id = user_id
         self.updated_at = _now_utc()
+
+    def start(self, agent_id: str, started_at: datetime):
+        if self.assignee_id is None:
+            raise TicketNotAssignedError(
+                "Le ticket doit être assigné avant de démarrer"
+            )
+
+        if self.assignee_id != agent_id:
+            raise WrongAgentError("Seul l'agent assigné peut démarrer le ticket")
+
+        if self.status != Status.OPEN:
+            raise InvalidTicketStateError(
+                f"Le ticket doit être OPEN (actuel: {self.status.value})"
+            )
+
+        self.status = Status.IN_PROGRESS
+        self.started_at = started_at
+        self.updated_at = started_at
 
     def resolve(self):
         if not self.verif_status(Status.RESOLVED):

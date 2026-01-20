@@ -52,20 +52,22 @@ def test_ticket_creation():
 
 
 def test_ticket_assign():
-    """Vérifie l'assignation d'un ticket."""
+    """Vérifie l'assignation d'un ticket (Version TD2b)."""
     ticket = Ticket(id="t1", title="Test", description="desc", creator_id="u1")
 
     ticket.assign("agent1")
 
     assert ticket.assignee_id == "agent1"
-    assert ticket.status == Status.IN_PROGRESS
+    assert ticket.status == Status.OPEN
 
 
 def test_ticket_resolve():
     """Vérifie la résolution d'un ticket (Nouveau test)."""
     ticket = Ticket(id="t1", title="Test", description="desc", creator_id="u1")
+    now = datetime.now()
 
     ticket.assign("agent1")
+    ticket.start(agent_id="agent1", started_at=now)
     ticket.resolve()
 
     assert ticket.status == Status.RESOLVED
@@ -74,8 +76,10 @@ def test_ticket_resolve():
 def test_ticket_close():
     """Vérifie la fermeture d'un ticket en suivant le cycle complet."""
     ticket = Ticket(id="t1", title="Test", description="desc", creator_id="u1")
+    now = datetime.now()
 
     ticket.assign("agent1")
+    ticket.start(agent_id="agent1", started_at=now)
     ticket.resolve()
     ticket.close()
 
@@ -114,8 +118,10 @@ def test_cannot_assign_without_agent_id():
 def test_cannot_assign_closed_ticket():
     """Règle : Un ticket fermé ne peut plus être assigné."""
     ticket = Ticket(id="t1", title="Test", description="desc", creator_id="u1")
+    now = datetime.now()
 
     ticket.assign("agent1")
+    ticket.start(agent_id="agent1", started_at=now)
     ticket.resolve()
     ticket.close()
 
@@ -128,8 +134,10 @@ def test_cannot_assign_closed_ticket():
 def test_cannot_close_already_closed_ticket():
     """Règle : Un ticket déjà fermé ne peut pas être re-fermé."""
     ticket = Ticket(id="t1", title="Test", description="desc", creator_id="u1")
+    now = datetime.now()
 
     ticket.assign("agent1")
+    ticket.start(agent_id="agent1", started_at=now)
     ticket.resolve()
     ticket.close()
 
@@ -177,9 +185,10 @@ def test_add_comment():
 def test_cannot_comment_on_closed_ticket():
     """Règle métier : Pas de commentaire sur un ticket fermé."""
     ticket = Ticket(id="t1", title="Bug", description="desc", creator_id="u1")
+    now = datetime.now()
 
-    # On ferme le ticket (via le cycle complet pour être propre)
     ticket.assign("agent1")
+    ticket.start(agent_id="agent1", started_at=now)
     ticket.resolve()
     ticket.close()
 
