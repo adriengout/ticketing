@@ -19,10 +19,15 @@ def _now_utc() -> datetime:
 
 @dataclass
 class Ticket:
+    # 1. Champs obligatoires (sans valeur par défaut)
     id: str
     title: str
     description: str
     creator_id: str
+
+    # 2. Champs optionnels (AVEC valeur par défaut)
+    # On ajoute project_id ici avec = None
+    project_id: Optional[str] = None
 
     status: Status = Status.OPEN
     priority: Priority = Priority.MEDIUM
@@ -36,7 +41,7 @@ class Ticket:
     closed_at: Optional[datetime] = None
     started_at: Optional[datetime] = None
 
-    # Constante métier pour la réouverture
+    # Constante métier
     REOPEN_DEADLINE_DAYS: int = 7
 
     def __post_init__(self):
@@ -131,3 +136,10 @@ class Ticket:
         self.status = Status.IN_PROGRESS
         self.closed_at = None
         self.updated_at = current_time
+
+    def _restore_status_from_db(self, status: Status):
+        """
+        Méthode technique utilisée par les mappers pour restaurer
+        le statut depuis la base de données.
+        """
+        self.status = status
