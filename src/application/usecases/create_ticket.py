@@ -52,6 +52,6 @@ class CreateTicketUseCase:
             priority=Priority.MEDIUM,
         )
 
-        saved_ticket = self.ticket_repo.save(ticket)
+        self.ticket_repo.save(ticket)
 
-        return saved_ticket
+        return ticket

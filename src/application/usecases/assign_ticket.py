@@ -4,7 +4,6 @@ Use case : Assigner un ticket à un agent.
 Ce use case gère l'assignation d'un ticket existant à un agent.
 """
 
-from src.domain.exceptions import TicketNotFoundError
 from src.domain.ticket import Ticket
 from src.ports.ticket_repository import TicketRepository
 
@@ -39,18 +38,12 @@ class AssignTicketUseCase:
         Raises:
             TicketNotFoundError: Si le ticket n'existe pas
         """
-        # TODO: Récupérer le ticket depuis le repository
         ticket = self.ticket_repo.get_by_id(ticket_id)
+        if not ticket:
+            from src.domain.exceptions import TicketNotFoundError
 
-        # TODO: Vérifier que le ticket existe (lever TicketNotFoundError sinon)
-        if ticket is None:
-            raise TicketNotFoundError(f"Ticket {ticket_id} not found")
+            raise TicketNotFoundError()
 
-        # TODO: Appeler la méthode assign() du ticket avec agent_id
         ticket.assign(agent_id)
-
-        # TODO: Sauvegarder le ticket modifié
         self.ticket_repo.save(ticket)
-
-        # TODO: Retourner le ticket mis à jour
-        return self.ticket_repo.save(ticket)
+        return ticket

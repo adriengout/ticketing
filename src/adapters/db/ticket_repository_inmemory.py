@@ -1,5 +1,5 @@
 # src/adapters/db/ticket_repository_inmemory.py
-from typing import Optional, dict, list
+from typing import Optional  # On ne garde que Optional ici
 
 from src.domain.ticket import Ticket
 from src.ports.ticket_repository import TicketRepository
@@ -7,6 +7,7 @@ from src.ports.ticket_repository import TicketRepository
 
 class InMemoryTicketRepository(TicketRepository):
     def __init__(self):
+        # dict[str, Ticket] est valide nativement en Python 3.9+
         self._tickets: dict[str, Ticket] = {}
 
     def get(self, ticket_id: str) -> Optional[Ticket]:
