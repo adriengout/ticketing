@@ -15,3 +15,13 @@ def sqlite_ticket_repo(tmp_path):
 
     # Retourne le repository configuré sur cette DB
     return SQLiteTicketRepository(str(db_path))
+
+
+@pytest.fixture
+def sqlite_user_repo(tmp_path):
+    from src.adapters.db.database import init_database
+    from src.adapters.db.user_repository_sqlite import SQLiteUserRepository
+
+    db_path = tmp_path / "test_users.db"
+    init_database(str(db_path))
+    return SQLiteUserRepository(str(db_path))
