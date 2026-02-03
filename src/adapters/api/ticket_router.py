@@ -23,6 +23,7 @@ class TicketIn(BaseModel):
 
     title: str
     description: str
+    creator_id: str
 
 
 class TicketOut(BaseModel):
@@ -58,7 +59,7 @@ def get_create_ticket_usecase():
 
 @router.post("/", status_code=201, response_model=TicketOut)
 async def create_ticket(
-    payload: TicketIn,
+    ticket_data: TicketIn,
     # TODO: Ajouter creator_id depuis le contexte d'authentification
 ):
     """
@@ -80,8 +81,23 @@ async def create_ticket(
     #     description=ticket.description, status=ticket.status.value
     # )
 
+    from src.main import get_create_ticket_usecase
+
+    usecase = get_create_ticket_usecase()
+
+    # 2. Appeler le use case
+    ticket = usecase.execute(
+        title=ticket_data.title,
+        description=ticket_data.description,
+        creator_id=ticket_data.creator_id,
+    )
+
+    # 3. Convertir l'entité domaine en schéma API
     return TicketOut(
-        id="TODO", title=payload.title, description=payload.description, status="open"
+        id=ticket.id,
+        title=ticket.title,
+        description=ticket.description,
+        status=ticket.status.value,  # Enum → string
     )
 
 
