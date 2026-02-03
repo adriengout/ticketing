@@ -15,6 +15,7 @@ from fastapi import FastAPI
 from src.adapters.api.ticket_router import router as ticket_router
 from src.adapters.db.ticket_repository_inmemory import InMemoryTicketRepository
 from src.application.usecases.create_ticket import CreateTicketUseCase
+from src.application.usecases.list_tickets import ListTicketsUseCase
 
 app = FastAPI(title="Ticketing Starter")
 
@@ -46,3 +47,7 @@ app.include_router(ticket_router)
 def root():
     """Route racine pour vérifier que l'API fonctionne."""
     return {"status": "ok"}
+
+
+def get_list_tickets_usecase() -> ListTicketsUseCase:
+    return ListTicketsUseCase(ticket_repository)
