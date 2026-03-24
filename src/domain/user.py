@@ -23,7 +23,7 @@ class User:
 
     id: str
     username: str
-    is_agent: bool
+    is_agent: bool = False
     is_admin: bool = False
 
     def __post_init__(self):
