@@ -14,7 +14,7 @@ from fastapi import FastAPI
 
 from src.adapters.api.ticket_router import router as ticket_api
 from src.adapters.api.user_routeur import router as user_api
-from src.adapters.db.ticket_repository_sqlite import SQLiteTicketRepository
+from src.adapters.db.ticket_repository_inmemory import InMemoryTicketRepository
 from src.adapters.db.user_repository_inmemory import InMemoryUserRepository
 from src.application.usecases.create_ticket import CreateTicketUseCase
 from src.application.usecases.create_user import CreateUserUseCase
@@ -25,7 +25,7 @@ from src.application.usecases.list_user import ListUsersUseCase
 app = FastAPI(title="Ticketing Starter")
 
 # 2. Initialisation des Adaptateurs (Repositories)
-ticket_repository = SQLiteTicketRepository("ticketing.db")
+ticket_repository = InMemoryTicketRepository()
 user_repository = InMemoryUserRepository()
 
 
@@ -47,8 +47,8 @@ def get_list_users_usecase():
 
 
 # On utilise directement les variables importées car ce sont déjà les objets router
-app.include_router(ticket_api)
-app.include_router(user_api)
+app.include_router(ticket_api, prefix="/tickets")
+app.include_router(user_api, prefix="/users")
 
 
 # TODO: Ajouter d'autres factories de cas d'usage au fur et à mesure
