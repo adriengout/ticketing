@@ -5,20 +5,19 @@ from src.ports.ticket_repository import TicketRepository
 
 
 class StartTicketUseCase:
-    def __init__(self, repository: TicketRepository, clock: Clock):
-        self.repository = repository
+    def __init__(self, ticket_repo: TicketRepository, clock: Clock):
+        self.ticket_repo = ticket_repo
         self.clock = clock
 
     def execute(self, ticket_id: str, agent_id: str) -> Ticket:
-        ticket = self.repository.get(ticket_id)
+        ticket = self.ticket_repo.get_by_id(ticket_id)
 
-        if ticket is None:
-            raise TicketNotFoundError(f"Ticket {ticket_id} introuvable")
+        if not ticket:
+            raise TicketNotFoundError(f"Ticket {ticket_id} not found")
 
-        now = self.clock.now()
+        current_time = self.clock.now()
+        ticket.start(agent_id, current_time)
 
-        ticket.start(agent_id=agent_id, started_at=now)
-
-        self.repository.save(ticket)
+        self.ticket_repo.save(ticket)
 
         return ticket
